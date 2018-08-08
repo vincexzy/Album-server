@@ -1,0 +1,16 @@
+<ul class="layui-nav layui-layout-right layui-bg-green">
+  <li class="layui-nav-item">
+    <% if (user) { %>
+        <a href="javascript:;"><%= user.name %></a>
+        <dl class="layui-nav-child layui-anim layui-anim-upbit">
+          <dd><a href="/signout">退出</a></dd>
+        </dl>
+    <% } else { %>
+        <a href="javascript:;">未登录</a>
+        <dl class="layui-nav-child layui-anim layui-anim-upbit">
+          <dd><a href="/signin">登录</a></dd>
+          <dd><a href="/signup">注册</a></dd>
+        </dl>
+    <% } %>
+  </li>
+</ul>

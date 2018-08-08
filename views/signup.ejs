@@ -1,0 +1,117 @@
+<%- include('header') %>
+<link rel="stylesheet" href="/stylesheets/signup.css">
+<form class="layui-form" action="">
+  <h3>用户注册</h3>
+  <div class="layui-form-item">
+    <label class="layui-form-label">用户名</label>
+    <div class="layui-input-block">
+      <input name="username" lay-verify="username" autocomplete="off" placeholder="请输入用户名" class="layui-input" type="text">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">密码</label>
+    <div class="layui-input-block">
+      <input name="pass" lay-verify="pass" placeholder="请输入密码" autocomplete="off" class="layui-input" type="password">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">确认密码</label>
+    <div class="layui-input-block">
+      <input name="repass" lay-verify="repass" placeholder="请输入确认密码" autocomplete="off" class="layui-input" type="password">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">性别</label>
+    <div class="layui-input-block">
+      <input name="sex" value="男" title="男" checked="" type="radio">
+      <input name="sex" value="女" title="女" type="radio">
+      <input name="sex" value="其他" title="其他" type="radio">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">验证码</label>
+    <div class="layui-input-inline">
+      <input name="verifyCode" lay-verify="verifyCode" placeholder="请输入验证码" autocomplete="off" class="layui-input" type="text">
+    </div>
+    <div class="verifyCode"></div>
+  </div>
+  <div class="layui-form-item">
+    <div class="layui-input-block">
+      <button class="layui-btn" lay-submit="" lay-filter="demo1">注册</button>
+      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+    </div>
+  </div>
+</form>
+<%- include('footer') %>
+<script type="text/javascript">
+layui.use(['jquery','form'], function(){
+  //var $ = layui.$;
+  var form = layui.form
+  ,layer = layui.layer;
+
+  //自定义验证规则
+  form.verify({
+    username: function(value){
+      if(value.length < 2){
+        return '用户名至少得2个字符啊';
+      }
+    },
+    pass: [/(.+){6,12}$/, '密码必须6到12位'],
+    repass: function(value){
+      let pass = document.querySelector('input[name=pass]');
+      if(value != pass.value){
+        return '两次密码不一致';
+      }
+    },
+    verifyCode: function(value){
+      if(value.length < 1){
+        return '请输入验证码';
+      }
+    }
+  });
+
+  let verifyCode = document.querySelector('.verifyCode');
+  function getCode() {
+      ajax('GET','/signup/verifycode').then(function(data) {
+          data = JSON.parse(data);
+          verifyCode.innerHTML = data.img;
+      });
+  }
+  getCode();
+  verifyCode.addEventListener('click', getCode);
+
+
+  //监听提交
+  form.on('submit(demo1)', function(data) {
+    ajax('POST', '/signup', JSON.stringify(data.field)).then(function(result) {
+        result = JSON.parse(result);
+        layer.msg(result.msg);
+        if (result.statu == 1) {
+            location.href = '/';
+        } else {
+            getCode();
+        }
+    });
+    return false;
+  });
+
+  function ajax(type,url,data) {
+      return new Promise(function(reslove, reject) {
+          let xhr = new XMLHttpRequest();
+          xhr.open(type, url, true);
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.send(data);
+          xhr.onreadystatechange = function() {
+                if(xhr.readyState == 4) {
+                    if(xhr.status == 200) {
+                        reslove(xhr.responseText);
+                    } else {
+                        reject(xhr.status);
+                    }
+                }
+            };
+      });
+  }
+});
+</script>
+</html>

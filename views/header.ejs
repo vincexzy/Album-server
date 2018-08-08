@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title><%= info.title %></title>
+        <meta name="renderer" content="webkit">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link rel="stylesheet" href="/css/layui.css">
+        <link rel="stylesheet" href="/stylesheets/common.css">
+    </head>
+    <body>
+        <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+        <!--[if lt IE 9]>
+          <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+          <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <section class="layui-container">
+            <header class="layui-header layui-bg-green">
+                <div class="nav-logo">
+                    <h2>我的简易博客</h2>
+                    <h4 class="layui-anim layui-anim-scaleSpring layui-anim-loop">vincexzy</h4>
+                </div>
+                <%- include('coms/nav-setting') %>
+                <%- include('coms/nav') %>
+            </header>
+            <!-- <%- include('coms/notification') %> -->
+            <section class="main">

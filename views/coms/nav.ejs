@@ -1,0 +1,6 @@
+<nav class="nav">
+    <a <% if(index === '/') { %> class="on" <% } %> href="/">公共留言板</a>
+    <% if (user) { %>
+        <a <% if(index === '/album') { %> class="on" <% } %> href="/album">我的相册</a>
+    <% } %>
+</nav>

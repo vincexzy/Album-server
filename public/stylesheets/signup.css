@@ -1,0 +1,21 @@
+.main {
+    padding-top: 80px;
+}
+.layui-form {
+    width: 50%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    border: #ccc solid 1px;
+}
+.layui-form h3 {
+    margin-bottom: 10px;
+    color: #FF5722;
+    text-align: center;
+}
+.verifyCode {
+    display: inline-block;
+    height: 38px;
+    cursor: pointer;
+}

@@ -1,0 +1,97 @@
+<%- include('header') %>
+<link rel="stylesheet" href="/stylesheets/messageBoard.css">
+    <div class="messageList">
+        <% messages.forEach(item => { %>
+        <div class="item" id="<%= item.id %>">
+            <p>
+                <span class="userName"><%= item.userName %></span> |
+                <span><%= item.sex %></span>
+                <span class="time"><%= item.time %></span>
+            </p>
+            <p>
+                <label>留言内容：</label>
+                <%= item.content %>
+            </p>
+            <% if (user && user.name == item.userName) { %>
+            <i class="layui-icon del">&#xe640;</i>
+            <% } %>
+        </div>
+        <% }) %>
+    </div>
+    <% if (user) { %>
+    <form class="msgForm layui-form layui-form-pane" action="" method="post">
+        <div class="layui-form-item layui-form-text">
+            <label class="layui-form-label">留言</label>
+            <div class="layui-input-block">
+                <textarea name="content" required lay-verify="required" placeholder="请输入留言内容" class="layui-textarea"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <button class="layui-btn" lay-submit lay-filter="msgForm">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </form>
+    <% } %>
+<%- include('footer') %>
+<% if (user) { %>
+<script type="text/javascript">
+    layui.use('form', function() {
+        var form = layui.form
+        ,layer = layui.layer;
+
+        //自定义验证规则
+        form.verify({
+          content: function(value) {
+            if(value.length < 1 || value.length > 100){
+              return '请输入1-100字符';
+            }
+          }
+        });
+
+        form.on('submit(msgForm)', function(data) {
+            ajax('POST', '/messageBoard/creat', JSON.stringify(data.field)).then(function(result) {
+                result = JSON.parse(result);
+                layer.msg(result.msg);
+                if (result.statu == 1) {
+                    location.href = "/"
+                }
+            });
+            return false;
+        });
+
+        if (document.querySelector('.del')) {
+            document.querySelector('.del').addEventListener('click', function(e) {
+                let data = {
+                    id: e.target.offsetParent.getAttribute('id')
+                }
+                ajax('POST', '/messageBoard/removeMessage', JSON.stringify(data)).then(function(result) {
+                    result = JSON.parse(result);
+                    layer.msg(result.msg);
+                    if (result.statu == 1) {
+                        location.href = "/"
+                    }
+                });
+            });
+        }
+
+    });
+    function ajax(type,url,data) {
+        return new Promise(function(reslove, reject) {
+            let xhr = new XMLHttpRequest();
+            xhr.open(type, url, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(data);
+            xhr.onreadystatechange = function() {
+                  if(xhr.readyState == 4) {
+                      if(xhr.status == 200) {
+                          reslove(xhr.responseText);
+                      } else {
+                          reject(xhr.status);
+                      }
+                  }
+              };
+        });
+    }
+</script>
+<% } %>
+</html>

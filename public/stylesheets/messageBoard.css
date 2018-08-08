@@ -1,0 +1,38 @@
+.main {
+    box-sizing: border-box;
+    padding: 15px 10%;
+}
+.messageList {
+    max-height: 1000px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.item {
+    position: relative;
+    padding: 10px;
+    min-height: 80px;
+    margin-bottom: 15px;
+    border: #5FB878 solid 2px;
+    background-color: #fff;
+    color: #333;
+}
+.item p {
+    line-height: 25px;
+}
+.userName {
+    font-size: 18px;
+    color: #009688;
+}
+.time {
+    float: right;
+    color: #666;
+}
+.item .del {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    cursor: pointer;
+}
+.item .del:hover {
+    color: #5FB878;
+}

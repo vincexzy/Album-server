@@ -1,0 +1,96 @@
+.main {
+    padding: 15px;
+    box-sizing: border-box;
+}
+.album {
+    height: 485px;
+    border: #ccc solid 1px;
+}
+.pics,
+.classify {
+    height: 100%;
+    background-color: #fff;
+}
+.classify {
+    padding: 10px;
+    border-right: #ccc solid 1px;
+}
+.classify .layui-btn {
+    border-radius: 0;
+}
+.classList {
+    height: 400px;
+    border: #ccc solid 1px;
+}
+.classList li {
+    height: 40px;
+    line-height: 40px;
+    border-bottom: #ccc solid 1px;
+    background-color: #fff;
+    text-align: center;
+    cursor: pointer;
+}
+.classList .btns {
+    float: right;
+    margin-right: 5px;
+}
+.classList li:hover,
+.classList li.on {
+    color: #fff;
+    background-color: #5FB878;
+}
+.pics {
+    background-color: #fff;
+}
+.picUpload {
+    padding: 10px;
+    border-bottom: #ccc solid 1px;
+}
+.picList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: left;
+    width: 100%;
+    min-height: 345px;
+    margin: 10px auto;
+    background-color: rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+}
+.item {
+    position: relative;
+    width: 120px;
+    height: 95px;
+    margin: 5px;
+    padding: 10px 0;
+    text-align: center;
+    border: #ccc solid 1px;
+    background-color: #F0F0F0;
+    font-size: 12px;
+}
+.item img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 5px;
+}
+.item .del {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+}
+.item .del:hover {
+    color: #5FB878;
+}
+.item:hover .del {
+    display: block;
+}
+#page {
+    padding: 0 10px;
+}
+#myForm input[type=file] {
+    width: 180px;
+}
+.hide {
+    display: none;
+}

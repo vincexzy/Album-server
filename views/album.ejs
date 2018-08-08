@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>
+    <%= info.title %>
+  </title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="stylesheet" href="/css/layui.css">
+  <link rel="stylesheet" href="/stylesheets/common.css">
+</head>
+
+<body>
+  <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+  <!--[if lt IE 9]>
+          <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+          <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+  <section class="layui-container">
+    <header class="layui-header layui-bg-green">
+      <div class="nav-logo">
+        <h2>我的简易博客</h2>
+        <h4 class="layui-anim layui-anim-scaleSpring layui-anim-loop">vinxexzy</h4>
+      </div>
+      <ul class="layui-nav layui-layout-right layui-bg-green">
+        <li class="layui-nav-item">
+          <% if (user) { %>
+            <a href="javascript:;">
+              <%= user.name %>
+            </a>
+            <dl class="layui-nav-child layui-anim layui-anim-upbit">
+              <dd><a href="/signout">退出</a></dd>
+            </dl>
+            <% } else { %>
+              <a href="javascript:;">未登录</a>
+              <dl class="layui-nav-child layui-anim layui-anim-upbit">
+                <dd><a href="/signin">登录</a></dd>
+                <dd><a href="/signup">注册</a></dd>
+              </dl>
+              <% } %>
+        </li>
+      </ul>
+
+      <nav class="nav">
+        <a <% if(index==='/' ) { %> class="on" <% } %> href="/">公共留言板</a>
+        <% if (user) { %>
+          <a <% if(index==='/album' ) { %> class="on" <% } %> href="/album">我的相册</a>
+          <% } %>
+      </nav>
+
+    </header>
+    <!-- <%- include('coms/notification') %> -->
+    <section class="main">
+      <link rel="stylesheet" href="/stylesheets/album.css">
+      <section class="album layui-row">
+        <section class="classify layui-col-md3">
+          <button id="creatClass" class="layui-btn layui-btn-fluid" type="button"><i class="layui-icon">&#xe654;</i>创建分类</button>
+          <ul class="classList">
+            <% classList.forEach(item => { %>
+              <li rel="classItem" type="<%= item %>">
+                <span><%= item %></span>
+                <div class="btns">
+                  <i class="layui-icon edit">&#xe642;</i>
+                  <i class="layui-icon del">&#xe640;</i>
+                </div>
+              </li>
+              <% }) %>
+                <li class="hide"></li>
+          </ul>
+        </section>
+        <section class="pics layui-col-md9">
+          <div class="picUpload">
+            <form id="myForm" method="post" enctype="multipart/form-data">
+              <input type="file" name="file" value="" multiple accept="image/*" />
+              <button type="submit" class="layui-btn" id="upload">
+                    <i class="layui-icon">&#xe67c;</i>上传图片
+                </button>
+            </form>
+          </div>
+          <div class="picList"></div>
+          <div id="page"></div>
+        </section>
+      </section>
+    </section>
+    <footer class="layui-footer layui-bg-green">
+      <p>© 2018 07</p>
+    </footer>
+  </section>
+</body>
+<script type="text/javascript" src="layui.js"></script>
+<script>
+  //JavaScript代码区域
+  layui.use('element', function() {
+    var element = layui.element;
+  });
+</script>
+
+<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery.form/4.2.2/jquery.form.min.js"></script>
+<script>
+  layui.use(['upload', 'laypage'], function() {
+    var laypage = layui.laypage;
+
+    let data = {
+      className: ''
+    }
+    //分类切换
+    document.querySelector('.classList').addEventListener('click', function(e) {
+      if (e.target.nodeName == 'LI') {
+        let li = e.target;
+        if (li.getAttribute('class') != 'on') {
+          document.querySelectorAll('.classList li[rel=classItem]').forEach(function(item) {
+            item.removeAttribute('class');
+          });
+          li.setAttribute('class', 'on');
+          data.className = li.getAttribute('type');
+          getPics(data);
+        }
+      }
+    });
+    //点击上传
+    $('#upload').on('click', function() {
+      if ($('.classList .on').length >= 1) {
+        if ($('#myForm input[type=file]').val() != '') {
+          $('#myForm').submit(function() {
+            $(this).ajaxSubmit({
+              url: '/album?className=' + data['className'],
+              type: 'post',
+              dataType: 'json',
+              success: function(result) {
+                $("#myForm input[type=file]").val('');
+                $('#myForm').off('submit');
+                getPics(data);
+              }
+            });
+            return false;
+          });
+        } else {
+          layer.msg('请选择上传的图片');
+          return false;
+        }
+      } else {
+        $("#myForm input[type=file]").val('');
+        layer.msg('请先选择分类');
+        return false;
+      }
+    });
+    //获取上传后的图片
+    function getPics(data) {
+      ajax('POST', '/album/getPics', JSON.stringify(data)).then(function(result) {
+        result = JSON.parse(result);
+        if (result.statu == 1) {
+          //调用分页
+          let data = result.list;
+          laypage.render({
+            elem: 'page',
+            count: data.length,
+            limit: 10,
+            jump: function(obj) {
+              //模拟渲染
+              document.querySelector('.picList').innerHTML = function() {
+                var arr = [],
+                  thisData = data.concat().splice(obj.curr * obj.limit - obj.limit, obj.limit);
+                layui.each(thisData, function(index, item) {
+                  let itemArr = item.split('/');
+                  arr.push(
+                    `
+                                    <div class="item">
+                                        <img src="${item}" alt="${itemArr[2]}">
+                                        <p>${itemArr[2]}</p>
+                                        <i class="layui-icon del">&#xe640;</i>
+                                    </div>
+                                    `
+                  );
+                });
+                return arr.join('');
+              }();
+            }
+          });
+        }
+      });
+    }
+
+    //删除图片
+    document.querySelector('.picList').addEventListener('click', function(e) {
+      if (e.target.nodeName == 'I') {
+        let pathName = document.querySelector('.classList .on').getAttribute('type') + '/' + e.target.previousElementSibling.innerHTML;
+        ajax('POST', '/album/delPic', JSON.stringify({
+          pathName: pathName
+        })).then(function(result) {
+          result = JSON.parse(result);
+          if (result.statu == 1) {
+            getPics(data);
+          }
+          layer.msg(result.msg);
+        });
+      }
+    });
+
+    // 两秒后模拟点击
+    setTimeout(function() {
+      let li = document.querySelector('.classList').firstElementChild;
+      // IE
+      if (document.all) {
+        if (li.getAttribute('class') != 'hide') {
+          li.click();
+        }
+
+      }
+      // 其它浏览器
+      else {
+        if (li.getAttribute('class') != 'hide') {
+          let e = document.createEvent("MouseEvents");
+          e.initEvent("click", true, true);
+          li.dispatchEvent(e);
+        }
+      }
+    }, 10);
+    //创建新的分类
+    document.querySelector('#creatClass').addEventListener('click', function(e) {
+      layer.prompt({
+        formType: 0,
+        value: '',
+        title: '请输入分类名称',
+      }, function(value, index, elem) {
+        if (value.length >= 1) {
+          let data = {
+            className: value
+          };
+          ajax('POST', '/album/creatClass', JSON.stringify(data)).then(function(result) {
+            result = JSON.parse(result);
+            if (result.statu == 1) {
+              let liHtml =
+                `<li rel="classItem" type="${ value }">
+                                        <span>${ value }</span>
+                                        <div class="btns">
+                                            <i class="layui-icon edit">&#xe642;</i>
+                                            <i class="layui-icon del">&#xe640;</i>
+                                        </div>
+                                    </li>`;
+              document.querySelector('.classList .hide').insertAdjacentHTML('beforebegin', liHtml);
+            }
+            layer.msg(result.msg);
+            layer.close(index);
+          });
+        } else {
+          layer.msg('请输入分类名称');
+        }
+      });
+    });
+
+    //删除分类
+    document.querySelector('.classList').addEventListener('click', function(e) {
+      if (e.target.className.indexOf('del') != -1) {
+        let className = e.target.parentElement.parentElement.getAttribute('type');
+        ajax('POST', '/album/delClass', JSON.stringify({
+          className: className
+        })).then(function(result) {
+          result = JSON.parse(result);
+          if (result.statu == 1) {
+            e.target.parentElement.parentElement.remove();
+          }
+          layer.msg(result.msg);
+        });
+      }
+    });
+    //重命名分类
+    document.querySelector('.classList').addEventListener('click', function(e) {
+      if (e.target.className.indexOf('edit') != -1) {
+        let li = e.target.parentElement.parentElement;
+        let oldClassName = li.getAttribute('type');
+        layer.prompt({
+          formType: 0,
+          value: oldClassName,
+          title: '请输入新的分类名称',
+        }, function(value, index, elem) {
+          if (value.length >= 1) {
+            let data = {
+              oldClassName: oldClassName,
+              newClassName: value
+            };
+            ajax('POST', '/album/reName', JSON.stringify(data)).then(function(result) {
+              result = JSON.parse(result);
+              if (result.statu == 1) {
+                li.setAttribute('type', value);
+                li.querySelector('span').textContent = value;
+              }
+              layer.msg(result.msg);
+              layer.close(index);
+            });
+          } else {
+            layer.msg('请输入新的分类名称');
+          }
+        });
+      }
+    });
+    // 封装请求方法
+    function ajax(type, url, data) {
+      return new Promise(function(reslove, reject) {
+        let xhr = new XMLHttpRequest();
+        xhr.open(type, url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(data);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState == 4) {
+            if (xhr.status == 200) {
+              reslove(xhr.responseText);
+            } else {
+              reject(xhr.status);
+            }
+          }
+        };
+      });
+    }
+  });
+</script>
+
+</html>
